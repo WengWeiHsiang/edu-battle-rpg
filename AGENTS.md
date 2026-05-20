@@ -1,0 +1,161 @@
+# AGENTS.md
+
+# 專案目標
+
+本專案是一個使用 Python + pygame 開發的教育型回合制 RPG。
+
+玩家透過回答：
+- 數學題
+- 英文題
+
+來進行戰鬥。
+
+本專案重點：
+
+- modular architecture
+- state machine
+- quiz system
+- battle system
+- low coupling
+- AI collaboration friendly
+
+---
+
+# 技術棧
+
+- Python 3.11
+- pygame
+
+---
+
+# 核心架構
+
+project/
+│
+├── core/
+├── states/
+├── battle/
+├── quiz/
+├── entities/
+├── ui/
+├── systems/
+├── data/
+└── tests/
+
+---
+
+# Architecture Rules
+
+## Separation of Concerns
+
+Battle logic:
+- battle/
+
+Question logic:
+- quiz/
+
+Rendering:
+- ui/
+
+State management:
+- states/
+
+Core engine:
+- core/
+
+禁止將所有邏輯寫在 main.py。
+
+---
+
+# State Machine
+
+遊戲必須使用 state machine。
+
+可能 state：
+
+- MenuState
+- BattleState
+- RewardState
+- PauseState
+- GameOverState
+
+禁止 massive if/else loop。
+
+---
+
+# Quiz System
+
+quiz/ 必須獨立。
+
+負責：
+- question generation
+- answer validation
+- difficulty
+
+不可依賴 UI。
+
+---
+
+# Battle System
+
+battle/ 負責：
+
+- damage
+- turn system
+- combat flow
+- skills
+
+battle logic 不可依賴 rendering。
+
+---
+
+# UI Rules
+
+ui/ 只負責：
+
+- drawing
+- HUD
+- text input
+- animation
+
+禁止 gameplay logic。
+
+---
+
+# Data Rules
+
+遊戲資料盡量使用：
+- json
+- yaml
+
+避免 hardcode。
+
+---
+
+# AI Agent Rules
+
+修改程式時：
+
+1. 保持 modular architecture
+2. 避免高耦合
+3. 小範圍修改
+4. 不要重寫整個專案
+5. 保持 state machine 完整
+
+新增功能前：
+
+- 先確認責任歸屬
+- 避免 duplicated logic
+
+---
+
+# Future Goals
+
+未來需支援：
+
+- AI question generation
+- adaptive difficulty
+- equipment
+- skills
+- save/load
+- boss battle
