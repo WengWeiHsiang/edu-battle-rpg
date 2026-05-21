@@ -14,8 +14,7 @@ class MenuState(BaseState):
     def handle_event(self, event: pygame.event.Event) -> None:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN:
-                self.game.services.battle.reset()
-                self.transition_to("battle")
+                self.transition_to("world")
             if event.key == pygame.K_ESCAPE:
                 self.game.running = False
 

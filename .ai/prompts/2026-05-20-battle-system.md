@@ -85,20 +85,3 @@ Enemy 回合由 battle.run_enemy_turn() 自動執行
 戰鬥結束後透過 state machine 轉到 RewardState 或 GameOverState
 另外修正了 Pause -> Battle 進度遺失風險：改為「只有 MenuState 開戰時重置 battle」，暫停返回不重置。
 
-檔案變更config.py
-state_machine.py
-game.py
-__main__.py
-combatant.py
-battle_controller.py
-question.py
-math_quiz.py
-base_state.py
-menu_state.py
-battle_state.py
-reward_state.py
-pause_state.py
-game_over_state.py
-menu_view.py
-battle_view.py
-text_input.py

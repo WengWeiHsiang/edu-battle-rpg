@@ -13,7 +13,7 @@ class PauseState(BaseState):
 
     def handle_event(self, event: pygame.event.Event) -> None:
         if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
-            self.transition_to("battle")
+            self.pop_state()
 
     def render(self, surface: pygame.Surface) -> None:
         self.view.draw(surface)

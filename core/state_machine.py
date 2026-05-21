@@ -10,18 +10,30 @@ class State(Protocol):
     def handle_event(self, event: object) -> None: ...
     def update(self, dt: float) -> None: ...
     def render(self, surface: object) -> None: ...
-    @property
-    def next_state(self) -> str | None: ...
 
 
 @dataclass
 class StateMachine:
-    current: State
+    _stack: list[State]
+
+    @property
+    def current(self) -> State:
+        return self._stack[-1]
 
     def change_state(self, new_state: State) -> None:
         self.current.on_exit()
-        self.current = new_state
+        self._stack[-1] = new_state
         self.current.on_enter()
+
+    def push_state(self, new_state: State) -> None:
+        self._stack.append(new_state)
+        self.current.on_enter()
+
+    def pop_state(self) -> None:
+        if len(self._stack) <= 1:
+            return
+        self.current.on_exit()
+        self._stack.pop()
 
     def handle_event(self, event: object) -> None:
         self.current.handle_event(event)

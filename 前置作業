@@ -244,3 +244,12 @@ ui/ 只負責：
 - battle state
 - question system
 
+# codex 常用指令
+## prompt 寫在 .md 裡
+Please read:
+
+- AGENTS.md
+- decisions.md
+- .ai/prompts/2026-05-21-battle-screen-layout.md
+
+Then implement the UI refactor.

@@ -13,12 +13,15 @@ from states.game_over_state import GameOverState
 from states.menu_state import MenuState
 from states.pause_state import PauseState
 from states.reward_state import RewardState
+from states.world_state import WorldState
+from systems.world import WorldSession
 
 
 @dataclass
 class GameServices:
     battle: BattleController
     quiz: MathQuizService
+    world: WorldSession
 
 
 class Game:
@@ -33,14 +36,16 @@ class Game:
         self.services = GameServices(
             battle=BattleController(),
             quiz=MathQuizService(),
+            world=WorldSession(),
         )
 
-        self.state_machine = StateMachine(MenuState(self))
+        self.state_machine = StateMachine([MenuState(self)])
         self.state_machine.current.on_enter()
 
     def change_state(self, state_name: str) -> None:
         mapping = {
             "menu": MenuState,
+            "world": WorldState,
             "battle": BattleState,
             "reward": RewardState,
             "pause": PauseState,
@@ -48,6 +53,20 @@ class Game:
         }
         state_cls = mapping[state_name]
         self.state_machine.change_state(state_cls(self))
+
+    def push_state(self, state_name: str) -> None:
+        mapping = {
+            "menu": MenuState,
+            "world": WorldState,
+            "battle": BattleState,
+            "reward": RewardState,
+            "pause": PauseState,
+            "game_over": GameOverState,
+        }
+        self.state_machine.push_state(mapping[state_name](self))
+
+    def pop_state(self) -> None:
+        self.state_machine.pop_state()
 
     def run(self) -> None:
         while self.running:
@@ -59,9 +78,15 @@ class Game:
                 self.state_machine.handle_event(event)
 
             self.state_machine.update(dt)
-            next_state = self.state_machine.current.next_state
-            if next_state:
-                self.change_state(next_state)
+            action = getattr(self.state_machine.current, "state_action", None)
+            if action:
+                action_name, state_name = action
+                if action_name == "change" and state_name:
+                    self.change_state(state_name)
+                elif action_name == "push" and state_name:
+                    self.push_state(state_name)
+                elif action_name == "pop":
+                    self.pop_state()
 
             self.state_machine.render(self.screen)
             pygame.display.flip()

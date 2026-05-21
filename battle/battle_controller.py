@@ -20,9 +20,16 @@ class BattleController:
         self.turn_owner = "player"
         self.last_result: TurnResult | None = None
 
-    def reset(self) -> None:
+    def reset(self, enemy_data: dict[str, int | str] | None = None) -> None:
         self.player = Combatant(name="Hero", max_hp=30, attack=7)
-        self.enemy = Combatant(name="Slime", max_hp=24, attack=5)
+        if enemy_data:
+            self.enemy = Combatant(
+                name=str(enemy_data.get("name", "Slime")),
+                max_hp=int(enemy_data.get("max_hp", 24)),
+                attack=int(enemy_data.get("attack", 5)),
+            )
+        else:
+            self.enemy = Combatant(name="Slime", max_hp=24, attack=5)
         self.turn_owner = "player"
         self.last_result = None
 
@@ -33,12 +40,13 @@ class BattleController:
         if is_correct:
             damage = self.enemy.take_damage(self.player.attack)
             result = TurnResult("player", "enemy", damage, "Correct answer")
+            self.turn_owner = "player" if self.enemy.is_alive and self.player.is_alive else self.turn_owner
         else:
-            damage = self.player.take_damage(self.enemy.attack)
+            damage = 0
             result = TurnResult("enemy", "player", damage, "Wrong answer")
+            self.turn_owner = "enemy" if self.enemy.is_alive and self.player.is_alive else self.turn_owner
 
         self.last_result = result
-        self.turn_owner = "enemy" if self.enemy.is_alive and self.player.is_alive else self.turn_owner
         return result
 
     def run_enemy_turn(self) -> TurnResult:
