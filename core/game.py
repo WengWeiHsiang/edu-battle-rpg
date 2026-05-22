@@ -15,6 +15,7 @@ from states.pause_state import PauseState
 from states.reward_state import RewardState
 from states.world_state import WorldState
 from systems.world import WorldSession
+from systems.difficulty import EducationalDifficultyScaler
 
 
 @dataclass
@@ -22,6 +23,7 @@ class GameServices:
     battle: BattleController
     quiz: MathQuizService
     world: WorldSession
+    difficulty: EducationalDifficultyScaler
 
 
 class Game:
@@ -37,6 +39,7 @@ class Game:
             battle=BattleController(),
             quiz=MathQuizService(),
             world=WorldSession(),
+            difficulty=EducationalDifficultyScaler(),
         )
 
         self.state_machine = StateMachine([MenuState(self)])

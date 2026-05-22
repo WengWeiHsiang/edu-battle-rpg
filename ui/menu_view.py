@@ -4,7 +4,7 @@ import pygame
 
 
 class MenuView:
-    def __init__(self, title: str = "Edu Battle RPG", subtitle: str = "Press Enter to start") -> None:
+    def __init__(self, title: str = "Edu Snake Survivor", subtitle: str = "Press Enter to start") -> None:
         self.title = title
         self.subtitle = subtitle
 

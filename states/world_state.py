@@ -11,35 +11,50 @@ class WorldState(BaseState):
     def __init__(self, game: "Game") -> None:
         super().__init__(game)
         self.view = WorldView()
-        self.transition = FlashTransition()
         self.world = game.services.world
-        self.encounter_enemy_id: str | None = None
+        self.transition = FlashTransition(duration=0.25)
+
+    def on_enter(self) -> None:
+        super().on_enter()
+        if self.world.is_game_over:
+            self.world.reset()
+            self.game.services.difficulty.reset()
+        self.transition.active = False
 
     def handle_event(self, event: pygame.event.Event) -> None:
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-            self.transition_to("menu")
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.transition_to("menu")
+                return
+
+            directions = {
+                pygame.K_w: (0, -1),
+                pygame.K_UP: (0, -1),
+                pygame.K_s: (0, 1),
+                pygame.K_DOWN: (0, 1),
+                pygame.K_a: (-1, 0),
+                pygame.K_LEFT: (-1, 0),
+                pygame.K_d: (1, 0),
+                pygame.K_RIGHT: (1, 0),
+            }
+            if event.key in directions:
+                self.world.set_direction(directions[event.key])
+                return
 
     def update(self, dt: float) -> None:
-        bounds = pygame.Rect(42, 42, self.game.config.width - 84, self.game.config.height - 84)
-        keys = pygame.key.get_pressed()
-        dx = float(keys[pygame.K_d] or keys[pygame.K_RIGHT]) - float(keys[pygame.K_a] or keys[pygame.K_LEFT])
-        dy = float(keys[pygame.K_s] or keys[pygame.K_DOWN]) - float(keys[pygame.K_w] or keys[pygame.K_UP])
-
-        if not self.transition.active:
-            self.world.player.move(dx, dy, dt, bounds)
-            for enemy in self.world.enemies:
-                enemy.update(dt, bounds)
-
-            for enemy in self.world.enemies:
-                if self.world.player.rect.colliderect(enemy.rect):
-                    self.world.begin_encounter(enemy)
-                    self.encounter_enemy_id = enemy.enemy_id
-                    self.transition.start()
-                    break
-        else:
+        if self.transition.active:
             if self.transition.update(dt):
                 self.transition_to("battle")
+            return
+
+        self.world.update(dt)
+        enemy = self.world.find_enemy_collision()
+        if enemy:
+            self.world.begin_encounter(enemy)
+            self.transition.start()
+
+        if self.world.is_game_over:
+            self.transition_to("game_over")
 
     def render(self, surface: pygame.Surface) -> None:
-        hint = "Move: WASD / Arrow Keys  |  Touch enemy to battle"
-        self.view.draw(surface, self.world.player, self.world.enemies, hint, self.transition.alpha())
+        self.view.draw(surface, self.world, self.transition.alpha())
