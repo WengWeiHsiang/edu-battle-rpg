@@ -81,15 +81,22 @@ class WorldSession:
 
     def apply_battle_result(self, encounter_enemy_id: str | None, is_correct: bool) -> None:
         if is_correct:
+            self.score += 20
+            self._feedback("Battle won!")
+        else:
+            self._feedback("Battle lost!")
+        self.enemy_manager.schedule_respawn()
+
+    def apply_battle_answer(self, is_correct: bool) -> None:
+        if is_correct:
             self.snake.grow(1)
             multiplier = self.combo_tracker.on_correct()
             self.score += 10 * multiplier
-            self._feedback(f"Defeated! x{multiplier}")
+            self._feedback(f"Correct! +1 x{multiplier}")
         else:
             self.snake.shrink(1)
             self.combo_tracker.reset()
             self._feedback("Wrong! -1 length")
-        self.enemy_manager.schedule_respawn()
 
     def remove_enemy_by_id(self, enemy_id: str) -> None:
         self.enemy_manager.remove_for_battle(enemy_id)

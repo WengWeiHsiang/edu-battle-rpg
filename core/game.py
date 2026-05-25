@@ -14,6 +14,7 @@ from states.menu_state import MenuState
 from states.pause_state import PauseState
 from states.reward_state import RewardState
 from states.world_state import WorldState
+from systems.battle import EncounterProfileService
 from systems.world import WorldSession
 from systems.difficulty import EducationalDifficultyScaler
 
@@ -24,6 +25,7 @@ class GameServices:
     quiz: MathQuizService
     world: WorldSession
     difficulty: EducationalDifficultyScaler
+    encounter_profiles: EncounterProfileService
 
 
 class Game:
@@ -40,6 +42,7 @@ class Game:
             quiz=MathQuizService(),
             world=WorldSession(),
             difficulty=EducationalDifficultyScaler(),
+            encounter_profiles=EncounterProfileService(),
         )
 
         self.state_machine = StateMachine([MenuState(self)])

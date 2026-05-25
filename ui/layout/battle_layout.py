@@ -4,6 +4,8 @@ from dataclasses import dataclass
 
 import pygame
 
+from ui.battle import AnswerGrid
+
 
 @dataclass(frozen=True)
 class BattleLayout:
@@ -19,10 +21,14 @@ class BattleLayout:
     dialogue_rect: pygame.Rect
     message_rect: pygame.Rect
     question_rect: pygame.Rect
-    input_rect: pygame.Rect
+    answers_area_rect: pygame.Rect
+    option_rects: tuple[pygame.Rect, ...]
 
 
 class BattleLayoutBuilder:
+    def __init__(self) -> None:
+        self._answer_grid = AnswerGrid(cols=2, rows=2)
+
     def build(self, surface_size: tuple[int, int]) -> BattleLayout:
         width, height = surface_size
 
@@ -49,17 +55,17 @@ class BattleLayoutBuilder:
         player_hp_rect = pygame.Rect(int(width * 0.06), int(middle_area.y + middle_area.height * 0.10), int(width * 0.42), 74)
 
         message_rect = pygame.Rect(dialogue_rect.x + 18, dialogue_rect.y + 10, dialogue_rect.width - 36, 24)
-        question_rect = pygame.Rect(dialogue_rect.x + 18, dialogue_rect.y + 36, dialogue_rect.width - 36, 24)
+        question_rect = pygame.Rect(dialogue_rect.x + 18, dialogue_rect.y + 36, dialogue_rect.width - 36, 56)
 
-        input_width = min(int(width * 0.52), dialogue_rect.width - 36)
-        input_height = max(34, int(dialogue_rect.height * 0.30))
-        input_y = dialogue_rect.bottom - input_height - 12
-        input_rect = pygame.Rect(
-            dialogue_rect.centerx - input_width // 2,
-            input_y,
-            input_width,
-            input_height,
+        answers_top = question_rect.bottom + 44
+        answers_height = max(96, dialogue_rect.bottom - answers_top - 12)
+        answers_area_rect = pygame.Rect(
+            dialogue_rect.x + 18,
+            answers_top,
+            dialogue_rect.width - 36,
+            answers_height,
         )
+        option_rects = self._answer_grid.build_rects(answers_area_rect, gap=10)
 
         enemy_px = max(5, int(width * 0.007))
         player_px = max(6, int(width * 0.008))
@@ -93,5 +99,6 @@ class BattleLayoutBuilder:
             dialogue_rect=dialogue_rect,
             message_rect=message_rect,
             question_rect=question_rect,
-            input_rect=input_rect,
+            answers_area_rect=answers_area_rect,
+            option_rects=option_rects,
         )

@@ -19,6 +19,8 @@ class BattleView:
         self._battle_panel = BattlePanel()
         self._status_panel = StatusPanel()
         self._question_panel = QuestionPanel()
+        self._last_layout = None
+        self._option_count = 0
 
     def on_enter(self, player: Combatant, enemy: Combatant) -> None:
         self._hp_display["player"] = player.hp / player.max_hp
@@ -33,6 +35,9 @@ class BattleView:
         self._feedback_text = "Correct!" if is_correct else "Wrong!"
         self._feedback_timer = 1.0
 
+    def show_answer_result(self, selected_index: int, correct_index: int) -> None:
+        self._question_panel.show_result(selected_index, correct_index)
+
     def play_damage_flash(self, target: str) -> None:
         if target in self._flash:
             self._flash[target] = 0.22
@@ -44,6 +49,7 @@ class BattleView:
         self._flash["enemy"] = max(0.0, self._flash["enemy"] - dt)
         self._feedback_timer = max(0.0, self._feedback_timer - dt)
         self._enemy_float_phase += dt
+        self._question_panel.update(dt)
 
     def _animate_hp(self, key: str, combatant: Combatant, dt: float) -> None:
         target = combatant.hp / combatant.max_hp
@@ -57,12 +63,16 @@ class BattleView:
         enemy: Combatant,
         turn_owner: str,
         question_text: str,
-        answer_text: str,
+        options: tuple[str, ...],
         last_note: str,
+        battle_progress: str,
+        failures_left: int,
         enemy_cooldown: float,
     ) -> None:
         width, height = surface.get_size()
         layout = self._layout_builder.build((width, height))
+        self._last_layout = layout
+        self._option_count = len(options)
 
         self._battle_panel.draw(surface, layout, width, height, self._flash, self._enemy_float_phase)
         self._status_panel.draw(surface, layout, player, enemy, self._hp_display)
@@ -71,6 +81,26 @@ class BattleView:
         if turn_owner == "enemy":
             message = f"Enemy turn ({enemy_cooldown:.1f}s)"
         elif not message:
-            message = "Choose your action: answer the quiz."
+            message = "Choose 1-4 to answer."
 
-        self._question_panel.draw(surface, layout, message, question_text, answer_text)
+        self._question_panel.draw(
+            surface,
+            layout,
+            message,
+            question_text,
+            options,
+            battle_progress,
+            failures_left,
+        )
+
+    def set_mouse_position(self, surface_size: tuple[int, int], mouse_pos: tuple[int, int]) -> None:
+        layout = self._layout_builder.build(surface_size)
+        hovered = self._question_panel.option_at(layout, mouse_pos, self._option_count)
+        self._question_panel.set_hover(hovered)
+
+    def option_at(self, surface_size: tuple[int, int], mouse_pos: tuple[int, int]) -> int | None:
+        layout = self._layout_builder.build(surface_size)
+        return self._question_panel.option_at(layout, mouse_pos, self._option_count)
+
+    def set_selected_option(self, option_index: int) -> None:
+        self._question_panel.set_selected(option_index)

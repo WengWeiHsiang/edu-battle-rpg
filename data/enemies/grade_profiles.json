@@ -1,0 +1,44 @@
+﻿{
+  "default": {
+    "grade": "Elementary Easy",
+    "difficulty_offset": 0,
+    "question_count": [1, 1],
+    "max_failures": 1
+  },
+  "Slime": {
+    "grade": "Elementary Easy",
+    "difficulty_offset": 0,
+    "question_count": [1, 2],
+    "max_failures": 1
+  },
+  "Bat": {
+    "grade": "Elementary Advanced",
+    "difficulty_offset": 1,
+    "question_count": [2, 3],
+    "max_failures": 2
+  },
+  "Mush": {
+    "grade": "Middle School",
+    "difficulty_offset": 2,
+    "question_count": [2, 3],
+    "max_failures": 2
+  },
+  "Ghost": {
+    "grade": "Middle School",
+    "difficulty_offset": 2,
+    "question_count": [3, 4],
+    "max_failures": 2
+  },
+  "Wizard": {
+    "grade": "High School",
+    "difficulty_offset": 3,
+    "question_count": [3, 4],
+    "max_failures": 2
+  },
+  "Boss": {
+    "grade": "Advanced Mixed",
+    "difficulty_offset": 4,
+    "question_count": [5, 6],
+    "max_failures": 3
+  }
+}
