@@ -60,19 +60,25 @@ class BattleLayoutBuilder:
             int(height * 0.06),
         )
 
-        info_h = max(56, min(72, int(height * 0.09)))
+        info_h = max(60, min(72, int(height * 0.1)))
         info_w = max(180, int(width * 0.28))
         info_y = max(8, int(height * 0.02))
-        enemy_info_rect = pygame.Rect(int(width * 0.03), info_y, info_w, info_h)
-        player_info_rect = pygame.Rect(width - int(width * 0.03) - info_w, info_y, info_w, info_h)
+        enemy_info_rect = pygame.Rect(
+            int(width * 0.03), info_y, info_w, info_h)
+        player_info_rect = pygame.Rect(
+            width - int(width * 0.03) - info_w, info_y, info_w, info_h)
 
         hp_h = max(10, int(info_h * 0.20))
-        enemy_hp_rect = pygame.Rect(enemy_info_rect.x + 10, enemy_info_rect.bottom - hp_h - 8, enemy_info_rect.width - 20, hp_h)
-        player_hp_rect = pygame.Rect(player_info_rect.x + 10, player_info_rect.bottom - hp_h - 8, player_info_rect.width - 20, hp_h)
+        enemy_hp_rect = pygame.Rect(
+            enemy_info_rect.x + 10, enemy_info_rect.bottom - hp_h - 8, enemy_info_rect.width - 20, hp_h)
+        player_hp_rect = pygame.Rect(
+            player_info_rect.x + 10, player_info_rect.bottom - hp_h - 8, player_info_rect.width - 20, hp_h)
 
         line_h = max(22, int(question_rect.height * 0.15))
-        message_rect = pygame.Rect(question_rect.x, question_rect.y, question_rect.width, line_h)
-        meta_rect = pygame.Rect(question_rect.x, question_rect.bottom - line_h, question_rect.width, line_h)
+        message_rect = pygame.Rect(
+            question_rect.x, question_rect.y, question_rect.width, line_h)
+        meta_rect = pygame.Rect(
+            question_rect.x, question_rect.bottom - line_h, question_rect.width, line_h)
 
         answers_area_rect = pygame.Rect(
             padding,
@@ -80,7 +86,8 @@ class BattleLayoutBuilder:
             width - (padding * 2),
             answer_zone.height - max(12, int(answer_zone.height * 0.12)),
         )
-        option_rects = self._answer_grid.build_rects(answers_area_rect, gap=max(8, int(width * 0.01)))
+        option_rects = self._answer_grid.build_rects(
+            answers_area_rect, gap=max(8, int(width * 0.01)))
 
         enemy_px = max(5, int(width * 0.007))
         enemy_sprite_w = 12 * enemy_px
