@@ -4,16 +4,15 @@ import pygame
 
 from ui.battle import AnswerButton
 from ui.layout import BattleLayout
-from ui.widgets import Label, MessageBox
+from ui.widgets import Label
 
 
 class QuestionPanel:
     def __init__(self) -> None:
-        self.message_label = Label(font_size=20)
-        self.question_label = Label(font_size=20)
+        self.message_label = Label(font_size=20, bold=True)
+        self.question_label = Label(font_size=34, bold=True)
         self.meta_label = Label(font_size=16)
-        self.option_label = Label(font_size=18)
-        self.message_box = MessageBox()
+        self.option_label = Label(font_size=22, bold=True)
         self.answer_button = AnswerButton(self.option_label.font)
         self.hover_index: int | None = None
         self.selected_index: int | None = None
@@ -30,15 +29,27 @@ class QuestionPanel:
         battle_progress: str,
         failures_left: int,
     ) -> None:
-        self.message_box.draw(surface, layout.dialogue_rect)
-        self.message_label.draw(surface, message, (28, 34, 42), layout.message_rect.topleft)
-        for line_no, line in enumerate(self._wrap_text(f"Q: {question_text}", self.question_label.font, layout.question_rect.width)):
-            self.question_label.draw(surface, line, (28, 34, 42), (layout.question_rect.x, layout.question_rect.y + line_no * 22))
+        msg_text = self._fit_text(message, self.message_label.font, layout.message_rect.width)
+        self.message_label.draw(surface, msg_text, (191, 214, 240), layout.message_rect.topleft)
+        wrapped = self._wrap_text(question_text, self.question_label.font, layout.question_rect.width - 40)
+        available_top = layout.message_rect.bottom + 8
+        available_bottom = layout.meta_rect.y - 8
+        line_height = max(30, min(40, (available_bottom - available_top) // max(1, len(wrapped))))
+        for line_no, line in enumerate(wrapped):
+            rendered = self.question_label.font.render(line, True, (247, 248, 255))
+            x = layout.question_rect.centerx - rendered.get_width() // 2
+            y = available_top + line_no * line_height
+            surface.blit(rendered, (x, y))
+        meta_text = self._fit_text(
+            f"Round {battle_progress}  |  Misses Left {failures_left}  |  Keys 1-4",
+            self.meta_label.font,
+            layout.meta_rect.width,
+        )
         self.meta_label.draw(
             surface,
-            f"Progress {battle_progress} | Failures Left {failures_left} | Click or press 1-4",
-            (52, 60, 72),
-            (layout.question_rect.x, layout.question_rect.bottom + 12),
+            meta_text,
+            (158, 175, 204),
+            layout.meta_rect.topleft,
         )
         for idx, option in enumerate(options[:4]):
             state = "idle"
@@ -92,4 +103,15 @@ class QuestionPanel:
                 lines.append(current)
                 current = word
         lines.append(current)
-        return lines[:2]
+        return lines[:3]
+
+    @staticmethod
+    def _fit_text(text: str, font: pygame.font.Font, max_width: int) -> str:
+        if font.size(text)[0] <= max_width:
+            return text
+        suffix = "..."
+        for i in range(len(text), 0, -1):
+            candidate = text[:i].rstrip() + suffix
+            if font.size(candidate)[0] <= max_width:
+                return candidate
+        return suffix

@@ -5,6 +5,7 @@ import math
 import pygame
 
 from ui.layout import BattleLayout
+from ui.theme import BATTLE_BG
 
 
 class BattlePanel:
@@ -42,27 +43,24 @@ class BattlePanel:
         flash: dict[str, float],
         enemy_float_phase: float,
     ) -> None:
-        sky = pygame.Rect(0, 0, width, int(height * 0.70))
-        ground = pygame.Rect(0, sky.height, width, height - sky.height)
-        pygame.draw.rect(surface, (167, 199, 235), sky)
-        pygame.draw.rect(surface, (184, 211, 141), ground)
+        surface.fill(BATTLE_BG["base"])
+        pygame.draw.rect(surface, BATTLE_BG["enemy_zone"], layout.enemy_zone)
+        pygame.draw.rect(surface, BATTLE_BG["question_zone"], layout.question_zone)
+        pygame.draw.rect(surface, BATTLE_BG["answer_zone"], layout.answer_zone)
 
-        pygame.draw.ellipse(surface, (126, 156, 95), layout.enemy_platform)
-        pygame.draw.ellipse(surface, (106, 136, 82), layout.player_platform)
+        pygame.draw.ellipse(surface, BATTLE_BG["enemy_platform"], layout.enemy_platform)
 
         enemy_px = max(7, int(width * 0.010))
-        player_px = max(6, int(width * 0.008))
         enemy_shadow = pygame.Rect(
             layout.enemy_platform.centerx - int(enemy_px * 5.5),
             layout.enemy_platform.y - int(enemy_px * 0.2),
             int(enemy_px * 11),
             int(enemy_px * 2),
         )
-        pygame.draw.ellipse(surface, (78, 96, 67), enemy_shadow)
+        pygame.draw.ellipse(surface, BATTLE_BG["enemy_shadow"], enemy_shadow)
         float_offset = int(math.sin(enemy_float_phase * 2.0) * max(2, int(height * 0.008)))
         enemy_sprite_pos = (layout.enemy_sprite_pos[0], layout.enemy_sprite_pos[1] - float_offset)
         self._draw_sprite(surface, enemy_sprite_pos, enemy_px, self.ENEMY_PALETTE, self.ENEMY_PATTERN, flash["enemy"])
-        self._draw_sprite(surface, layout.player_sprite_pos, player_px, self.PLAYER_PALETTE, self.PLAYER_PATTERN, flash["player"])
 
     def _draw_sprite(
         self,

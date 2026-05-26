@@ -9,19 +9,30 @@ class AnswerButton:
 
     def draw(self, surface: pygame.Surface, rect: pygame.Rect, text: str, state: str) -> None:
         palette = {
-            "idle": ((241, 238, 224), (42, 49, 60), (24, 29, 36)),
-            "hover": ((255, 247, 208), (66, 88, 116), (24, 29, 36)),
-            "selected": ((225, 240, 255), (64, 118, 181), (24, 29, 36)),
-            "correct": ((210, 244, 218), (58, 142, 82), (20, 34, 24)),
-            "wrong": ((250, 214, 214), (171, 67, 67), (44, 18, 18)),
+            "idle": ((228, 236, 249), (64, 83, 117), (18, 24, 38)),
+            "hover": ((246, 248, 255), (96, 129, 176), (18, 24, 38)),
+            "selected": ((232, 243, 255), (52, 132, 206), (14, 21, 34)),
+            "correct": ((209, 246, 219), (56, 155, 87), (13, 34, 21)),
+            "wrong": ((255, 218, 218), (187, 68, 68), (44, 18, 18)),
         }
         fill, border, text_color = palette.get(state, palette["idle"])
 
-        shadow = rect.move(0, 2)
-        pygame.draw.rect(surface, (20, 26, 32, 70), shadow, border_radius=10)
-        pygame.draw.rect(surface, fill, rect, border_radius=10)
-        pygame.draw.rect(surface, border, rect, width=2, border_radius=10)
+        shadow = rect.move(0, 3)
+        pygame.draw.rect(surface, (10, 14, 22, 110), shadow, border_radius=12)
+        pygame.draw.rect(surface, fill, rect, border_radius=12)
+        pygame.draw.rect(surface, border, rect, width=3, border_radius=12)
 
+        text = self._fit_text(text, rect.width - 24)
         rendered = self._font.render(text, True, text_color)
-        text_pos = (rect.x + 14, rect.centery - rendered.get_height() // 2)
+        text_pos = (rect.x + 16, rect.centery - rendered.get_height() // 2)
         surface.blit(rendered, text_pos)
+
+    def _fit_text(self, text: str, max_width: int) -> str:
+        if self._font.size(text)[0] <= max_width:
+            return text
+        suffix = "..."
+        for i in range(len(text), 0, -1):
+            candidate = text[:i].rstrip() + suffix
+            if self._font.size(candidate)[0] <= max_width:
+                return candidate
+        return suffix

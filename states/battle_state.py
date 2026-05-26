@@ -111,8 +111,13 @@ class BattleState(BaseState):
             turn_owner="player",
             question_text=self.current_question.prompt if self.current_question else "",
             options=self.current_question.options if self.current_question else tuple(),
-            last_note=(
+            enemy_grade=(
                 f"{self.encounter_grade} Lv{self.current_question.difficulty}"
+                if self.current_question
+                else self.encounter_grade
+            ),
+            last_note=(
+                ""
                 if self.current_question
                 else "Battle resolved, returning to world"
             ),

@@ -3,6 +3,7 @@ from __future__ import annotations
 import pygame
 
 from entities.combatant import Combatant
+from ui.battle.battle_feedback import BattleFeedback
 from ui.layout import BattleLayoutBuilder
 from ui.panels import BattlePanel, QuestionPanel, StatusPanel
 
@@ -15,6 +16,7 @@ class BattleView:
         self._feedback_timer = 0.0
         self._enemy_float_phase = 0.0
         self._layout_builder = BattleLayoutBuilder()
+        self._feedback = BattleFeedback()
 
         self._battle_panel = BattlePanel()
         self._status_panel = StatusPanel()
@@ -34,6 +36,10 @@ class BattleView:
     def show_feedback(self, is_correct: bool) -> None:
         self._feedback_text = "Correct!" if is_correct else "Wrong!"
         self._feedback_timer = 1.0
+        if is_correct:
+            self._feedback.trigger_correct()
+        else:
+            self._feedback.trigger_wrong()
 
     def show_answer_result(self, selected_index: int, correct_index: int) -> None:
         self._question_panel.show_result(selected_index, correct_index)
@@ -49,6 +55,7 @@ class BattleView:
         self._flash["enemy"] = max(0.0, self._flash["enemy"] - dt)
         self._feedback_timer = max(0.0, self._feedback_timer - dt)
         self._enemy_float_phase += dt
+        self._feedback.update(dt)
         self._question_panel.update(dt)
 
     def _animate_hp(self, key: str, combatant: Combatant, dt: float) -> None:
@@ -64,6 +71,7 @@ class BattleView:
         turn_owner: str,
         question_text: str,
         options: tuple[str, ...],
+        enemy_grade: str,
         last_note: str,
         battle_progress: str,
         failures_left: int,
@@ -73,9 +81,10 @@ class BattleView:
         layout = self._layout_builder.build((width, height))
         self._last_layout = layout
         self._option_count = len(options)
+        scene = pygame.Surface((width, height), pygame.SRCALPHA)
 
-        self._battle_panel.draw(surface, layout, width, height, self._flash, self._enemy_float_phase)
-        self._status_panel.draw(surface, layout, player, enemy, self._hp_display)
+        self._battle_panel.draw(scene, layout, width, height, self._flash, self._enemy_float_phase)
+        self._status_panel.draw(scene, layout, player, enemy, self._hp_display, enemy_grade)
 
         message = self._feedback_text if self._feedback_timer > 0 else last_note
         if turn_owner == "enemy":
@@ -84,7 +93,7 @@ class BattleView:
             message = "Choose 1-4 to answer."
 
         self._question_panel.draw(
-            surface,
+            scene,
             layout,
             message,
             question_text,
@@ -92,6 +101,9 @@ class BattleView:
             battle_progress,
             failures_left,
         )
+        self._feedback.draw_overlay(scene)
+        self._feedback.draw_popup(scene, (layout.question_rect.centerx, layout.question_rect.y + 20))
+        surface.blit(scene, self._feedback.shake_offset())
 
     def set_mouse_position(self, surface_size: tuple[int, int], mouse_pos: tuple[int, int]) -> None:
         layout = self._layout_builder.build(surface_size)
